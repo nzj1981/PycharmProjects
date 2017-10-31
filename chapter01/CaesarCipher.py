@@ -80,5 +80,6 @@ if __name__ == '__main__':
     # Receive the message to encrypt and the number of characters to shift
     message = input("Enter your message:")
     key = input("How many characters should we shift(-26~26):")
-    print("Encrypted message:", encr_orig(message, key))
-    print("original message:", encr_orig(message, key, 1))
+    encr_mess = encr_orig(message,key)
+    print("Encrypted message:", encr_mess)
+    print("original message:", encr_orig(encr_mess, key, 1))
