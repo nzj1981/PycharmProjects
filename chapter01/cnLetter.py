@@ -17,13 +17,11 @@ count = {}
 # traverse every word and accumulate
 
 for word in words:
-    word = word.lower()
-    if word[-1].isalpha():
-        count.setdefault(word, 0)
-        count[word] += 1
-    else:
+    if not word[-1].isalpha():
         word = word[:-1]
-        count.setdefault(word, 0)
-        count[word] += 1
+    word = word.lower()
+    count.setdefault(word, 0)
+    count[word] += 1
+
 pprint.pprint(count)
 
