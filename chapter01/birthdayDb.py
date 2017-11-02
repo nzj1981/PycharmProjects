@@ -16,9 +16,10 @@ while True:
     elif name in birthdays:
         print('{} is the birthday of {}'.format(name, birthdays[name]))
     else:
-        print('I do not have birthday information:',name)
+        print('I do not have birthday information:', name)
         bday = input('What is the birthday?')
         birthdays[name] = bday
         print('Birthday database update!')
+
 print(birthdays)
 
