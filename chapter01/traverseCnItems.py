@@ -18,8 +18,8 @@ def totalBrought(guests, item):
 
 # print number of items (call function)
 print("Number of things being brouht: \n")
-print("-Apple            {:>4}".format(totalBrought(allGuests, 'apples')))
-print("-pretzels         {:>4}".format(totalBrought(allGuests, 'pretzels')))
-print("-ham snadwiches   {:>4}".format(totalBrought(allGuests, 'ham snadwiches')))
-print("-cups             {:>4}".format(totalBrought(allGuests, 'cups')))
-print("-apple pies       {:>4}".format(totalBrought(allGuests, 'apple pies')))
+print("-Apple            {:>4}".format(totalBrought(allGuests,'apples',)))
+print("-pretzels         {:>4}".format(totalBrought(allGuests,'pretzels',)))
+print("-ham snadwiches   {:>4}".format(totalBrought(allGuests,'ham snadwiches',)))
+print("-cups             {:>4}".format(totalBrought(allGuests,'cups',)))
+print("-apple pies       {:>4}".format(totalBrought(allGuests,'apple pies',)))
