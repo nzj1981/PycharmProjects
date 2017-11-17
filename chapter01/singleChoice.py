@@ -47,7 +47,7 @@ for quizNum in range(infoNum):
     answerkeyFile = open('infosecurity_answer{}.txt'.format(quizNum + 1), 'w', encoding='utf-8')
     # write out the header for the quiz
     quizfile.write('\n姓名：      工号：      部门：        \n\n')
-    quizfile.write(' '*20 + '2017信息安全知识考试{}\n\n'.format(quizNum + 1))
+    quizfile.write(' ' * 20 + '2017信息安全知识考试{}\n\n'.format(quizNum + 1))
     # shuffle the order of the radios
     radios = list(questionBanks.keys())
     random.shuffle(radios)
@@ -60,9 +60,9 @@ for quizNum in range(infoNum):
         answerOptions = questionBanks[radios[questionNum]]
         random.shuffle(answerOptions)
         # write the question and the answer options to quiz file.
-        quizfile.write('{}. {} \n'.format(questionNum + 1,radios[questionNum]))
+        quizfile.write('{}. {} \n'.format(questionNum + 1, radios[questionNum]))
         for i in range(4):
-            quizfile.write('{}. {}\n'.format('ABCD'[i],answerOptions[i]))
+            quizfile.write('{}. {}\n'.format('ABCD'[i], answerOptions[i]))
 
         # add line
         quizfile.write('\n')
