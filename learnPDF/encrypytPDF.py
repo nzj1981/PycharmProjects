@@ -1,4 +1,4 @@
-#!D:\Python36\python3.exe
+#!/usr/bin/env python3.6
 #coding=utf-8
 
 import PyPDF2
