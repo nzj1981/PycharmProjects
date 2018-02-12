@@ -12,3 +12,18 @@
 @time: 18-2-12 上午11:32
 """ 
 import os
+
+# !/usr/bin/env python3
+# encoding: utf-8
+# set( $SITE = "https://github.com/nzj1981/PycharmProjects.git" )
+
+""" 
+@version: v1.0 
+@author: autumner 
+@license: Apache Licence  
+@contact: 18322313385@163.com 
+@site: ${SITE} 
+@software: ${PRODUCT_NAME} 
+@file: ${NAME}.py 
+@time: ${DATE} ${TIME}
+"""
