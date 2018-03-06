@@ -17,13 +17,11 @@
 检查任意文件是否是位图文件，如果是，打印出图片大小和颜色数
 '''
 
-import base64
 import struct
 
 # 把一个图片转换二进制数据
 with open(r'pic.bmp', 'rb') as f:
-    bmp_bs = base64.b64encode(f.read())
-
+    bmp_bs = f.read()
 
 # print(bmp_bs)
 
@@ -31,7 +29,6 @@ with open(r'pic.bmp', 'rb') as f:
 # 检查bmp_bs是否是位图文件，如果是则输出图片大小和颜色数
 def bmp_info(data):
     result = struct.unpack('<ccIIIIIIHH', data[:30])
-    # print(result)
     if result[0] == b'B' and result[1] == b'M':
         return {
             'width': result[6],
@@ -43,9 +40,6 @@ def bmp_info(data):
 # 输出
 
 if __name__ == '__main__':
-    # 把二进制数据转换成字节数据
-    bmp_data = base64.b64decode(bmp_bs)
-    # print(bmp_data)
     # 检查图片
-    bi = bmp_info(bmp_data)
+    bi = bmp_info(bmp_bs)
     print(bi, type(bi))
