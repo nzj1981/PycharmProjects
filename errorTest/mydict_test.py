@@ -18,10 +18,17 @@ python3 mydict_test.py
 2)命令行通过参数-m unittest直接运行单元测试
 python3 -m unittest mydict_test.py
 
+在单元测试中有两个特殊的setUp()和tearDown()方法，这两个方法会分别在每调用一个测试方法的前后
+分别被执行。
+例子：setUp()方法中连接数据库，在tearDown()方法中关闭数据库，这样不必在每个测试方法中重复相同代码。
+
 '''
 
 
 class TestDict(unittest.TestCase):
+
+    def setUp(self):
+        print('setUp...')
 
     def test_init(self):
         d = Dict(a=1, b='test')
@@ -52,6 +59,9 @@ class TestDict(unittest.TestCase):
 
         with self.assertRaises(AttributeError):
             value = d.empty
+
+    def tearDown(self):
+        print('tearDown...')
 
 
 
