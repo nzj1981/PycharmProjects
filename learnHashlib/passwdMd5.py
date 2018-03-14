@@ -14,7 +14,10 @@
 import hashlib
 import random
 
-
+'''
+设计一个验证用户登录的函数，根据用户输入的口令是正确，返回True或False
+该设计中salt是随机值，不是真正用户登录口令验证使用，在passwdHmac.py真正解决了口令验证问题。
+'''
 # get md5
 
 def get_md5(s):
