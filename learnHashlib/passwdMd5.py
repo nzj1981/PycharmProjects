@@ -36,6 +36,7 @@ db = {
 }
 
 
+
 def login(username, password):
     user = db[username]
     return user.password == get_md5(password + user.salt)
