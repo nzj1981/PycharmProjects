@@ -1,0 +1,886 @@
+python3学习笔记
+1.数据类型和变量
+内部字符串默认不转义时使用r'',
+换行时使用
+r'''
+   line1
+   line2
+'''
+2.tuple类型
+当tuple只有一个元素时使用
+t = (1,)表达，避免公式（1）冲突
+
+3.函数的参数
+函数中的可变参数
+def calc(*numbers):
+    sum = 0
+    for n in numbers:
+        sum = sum + n * n
+    return sum
+
+nums = [1, 2, 3]
+calc(*nums)
+*nums，*numbers把所元素作为可变参数传入函数中，这就是可变参数（可变参数可以传入0个或任意多个）
+4.函数的关键字参数
+关键字参数在函数内部自动组装为一个dict
+def person(name, age, **kw):
+    print('name:', name, 'age:', age, 'other:', kw)
+person('Tom', 15, city='shanghai')
+[output]: name:Tom, age:15, other:{'city': 'shanghai'}
+extra = {'city':'shanghai', 'job':'computer'}
+person('Tom', 24, **extra)
+[output]:name:Tom, age:24, other:{'city': 'shanghai', 'job': 'computer'}
+5. 函数的命名关键字参数
+命名关键字参数就是要限制关键字参数的名字。
+def person(name, age, *, city, job):
+    print(name, age, city, job)
+命名关键字参数需要一个特殊分隔符*，*后面的参数被视为命名关键字参数。
+def person(name, age, *args, city, job):
+    print(name, age, args, city, job)
+如果函数定义中已经有了一个可变参数，后面跟着的命名关键字参数就不再需要一个特殊分隔符*了
+5.函数的参数组合
+必选参数，默认参数，可变参数，命名关键字参数，关键字参数可以组合使用，并且保持一定组合顺序。
+要注意定义可变参数和关键字参数的语法：
+
+*args是可变参数，args接收的是一个tuple；
+
+**kw是关键字参数，kw接收的是一个dict。
+6.迭代中enumerate函数
+enumerate函数把一个list变成索引-元素对，在for循环中同时迭代索引和元=素本身
+for i, value in enumerate(['A', 'B', 'C']):
+    print(i, value)
+7.列表生成式
+重要的：
+[x * x for x in range(1, 11)]
+[x * x for x in range(1, 11) if x % 2 == 0]
+两层循环的
+[m + n for m in 'ABC' for n in 'XYZ']
+['AX', 'AY', 'AZ', 'BX', 'BY', 'BZ', 'CX', 'CY', 'CZ']
+迭代key和value列表生成式
+>>> d = {'x': 'A', 'y': 'B', 'z': 'C' }
+>>> [ k + '=' + v for k, v in d.items()]
+['x=A', 'y=B', 'z=C']
+8.生成器(generator)
+第一种方法很简单，只要把一个列表生成式的[]改成()，就创建了一个generator
+>>> g = (x * x for x in range(1, 11))
+>>> g
+<generator object <genexpr> at 0x0000020AB9CF9E60>
+>>> next(g)
+1
+>>> next(g)
+4
+generator保存的是算法，每次调用next(g)，就计算出g的下一个元素的值，直到计算到最后一个元素，没有更多的元素时，抛出StopIteration的错误。
+>>> for i in g:
+	print(i)
+
+9
+16
+25
+36
+49
+64
+81
+100
+>>>
+如果一个函数定义中包含yield关键字，那么这个函数就不再是一个普通函数，而是一个generator：
+著名的斐波拉契数列（Fibonacci），除第一个和第二个数外，任意一个数都可由前两个数相加得到：
+>>> def fib(max):
+	n, a, b = 0, 0, 1
+	while n < max:
+		n = n + 1
+		yield b
+		a, b = b, a + b
+	return 'done'
+
+>>> for i in fib(8):
+	print(i)
+
+1
+1
+2
+3
+5
+8
+13
+21
+在每次调用next()的时候执行，遇到yield语句返回，再次执行时从上次返回的yield语句处继续执行。
+
+9.高阶函数（map/reduce）
+map()传入的第一个参数是f，即函数对象本身。由于结果r是一个Iterator，Iterator是惰性序列，因此通过list()函数让它把整个序列都计算出来并返回一个list。
+reduce把一个函数作用在一个序列[x1, x2, x3, ...]上，这个函数必须接收两个参数，reduce把结果继续和序列的下一个元素做累积计算，
+其效果就是：
+reduce(f, [x1, x2, x3, x4]) = f(f(f(x1, x2), x3), x4)
+filter()也接收一个函数和一个序列。和map()不同的是，filter()把传入的函数依次作用于每个元素，然后根据返回值是True还是False决定保留还是丢弃该元素。
+filter()函数返回的是一个Iterator，也就是一个惰性序列，所以要强迫filter()完成计算结果，需要用list()函数获得所有结果并返回list
+sorted排序算法，高阶函数可以接收一个key函数来实现自定义的排序，要进行反向排序，不必改动key函数，可以传入第三个参数reverse=True
+>>> sorted(['bob', 'about', 'Zoo', 'Credit'], key=str.lower, reverse=True)
+['Zoo', 'Credit', 'bob', 'about']
+
+返回函数：高阶函数除了可以接受函数作为参数外，还可以把函数作为结果值返回。
+***返回闭包时牢记一点：返回函数不要引用任何循环变量，或者后续会发生变化的变量。**
+ 
+装饰器(decorator)是一个高阶函数
+在函数调用前后自动打印日志，但又不希望修改本身函数的定义，这种在代码运行期间动态增加功能的方式，称为“装饰器”(decorator)
+
+Python的functools模块提供了很多有用的功能，其中一个就是偏函数（Partial function）
+>>> int('12345', base=8)
+5349
+>>> int('12345', 16)
+74565
+>>> import functools
+>>> int2 = functools.partial(int, base=2)
+>>> int2('1000000')
+64
+>>> int2('1010101')
+85
+
+10.面向对象编程
+访问限制
+在Python中，变量名类似__xxx__的，也就是以双下划线开头，并且以双下划线结尾的，是特殊变量，特殊变量是可以直接访问的，不是private变量，所以，不能用__name__、__score__这样的变量名。
+有些时候，你会看到以一个下划线开头的实例变量名，比如_name，这样的实例变量外部是可以访问的，但是，按照约定俗成的规定，当你看到这样的变量时，意思就是，“虽然我可以被访问，但是，请把我视为私有变量，不要随意访问”。
+双下划线开头的实例变量是不是一定不能从外部访问呢？其实也不是。不能直接访问__name是因为Python解释器对外把__name变量改成了_Student__name，所以，仍然可以通过_Student__name来访问__name变量：
+>>> bart._Student__name
+'Bart Simpson'
+
+__slots__定义的属性仅对当前类实例起作用，对继承的子类是不起作用的
+class Student(object):
+    __slots__ = ('name', 'age') # 用tuple定义允许绑定的属性名称
+    
+    
+@property的实现比较复杂的。把一个getter方法变成属性，只需要加上@property就可以了
+@property本身又创建了另一个装饰器@score.setter，负责把一个setter方法变成属性赋值
+
+多重继承是python特有继承，很多编程语言都是单根单向继承,意思就是子类只能有一个父类,
+而且是单一方向的,不能子类继承父类,父类继承该子类;
+在Python中,继承功能更加的强大,支持Mixin,就是混合继承,一个子类可以同时继承多个父类,
+而不是一级一级的继承;但是Mixin这个功能在某些语言中是通过协议来完成的,
+遵循某个协议就拥有了协议里定义的方法,跟Mixin有相似的用处.
+
+11.Python的调试器pdb
+python -m pdb err.py
+(Pdb) 输入命令l来查看代码
+(Pdb) 输入命令n可以单步执行代码
+(Pdb) 任何时候可以输入命令【p 变量名】来查看变量
+(Pdb) 输入命令q结束调试，退出程序
+11.1 引入import pdb
+在出错处放一个pdb.set_trace(),设置一个断点
+程序会自动在pdb.set_trace()，暂停并进入pdb调试环境，可以用命令p查看变量，或者用命令c继续运行。
+11.2单元测试
+引入python自带的unittest模块
+import unittest
+以test开头的方法就是测试方法，不以test开头的方法不被认为是测试方法
+常用断言是asserEqual(),assertTrue()
+期待抛出指定类型的Error
+with self.assertRaises(KeyError):
+    value= d['empty']
+    
+ 运行单元测试
+
+测试方法编写完成，在最后加入
+if __name__ == '__main__':
+    unittest.main()
+运行方法：
+python mydict_test.py
+或者
+python -m unittest mydict_test.py
+
+setUp()与tearDown()这两个方法会分别在每调用一个测试方法的前后分别被执行
+应用场景启动一个数据库
+
+12.io编程
+12.1 操作文件和目录
+>>>import os
+>>>os.name(操作系统类型)
+>>>os.uname(获取详细信息,该函数不支持windows)
+>>>os.environ(获取系统环境变量)
+>>>os.environ.get('PATH')(获取某个环境变量)
+>>>os.path.abspath('.')(查看当前目录的绝对路径)
+>>>os.path.join('/home/autumn', 'testdir')(在某个目录下创建一个新目录，把新目录的完整路径表示出来)
+>>>os.mkdir('/home/autumn/testdir')(创建一个目录)
+>>>os.rmdir('/home/autumn/testdir')(删除一个目录)
+>>>os.path.split('/home/autumn/testfile.txt')(该函数把路径拆分两部分,后一部分总是最后级别的目录或文件名)
+>>>os.path.splitext('/home/autumn/testfile.txt')(该函数可以直接得到扩展名)
+>>>('/home/autumn/testfile', '.txt')
+>>>os.rename('testfile.txt', 'testfile2.txt')(对文件重名)
+>>>os.remove('testfile2.txt')(删除文件)
+>>>import shutil
+>>>shutil.copyfile('testfile.txt', 'testfilecopy.txt')(对文件的拷贝)
+>>>[x for x in os.listdir('.') if os.path.isdir(x)](列出当前路径下所有目录)
+>>>[x for x in os.listdir('.') if os.path.isfile(x) and os.path.splitext(x)[1]=='.py'](列出当前路径下所有为'.py'的文件)
+12.2 序列化(picking:把变量从内存中变成可存储或传输的过程称之为序列化)
+pickle.dumps与pickle.loads用法
+>>>import pickle
+>>> d = dict(name='Jick', age=18, score=88)
+>>> d1 = pickle.dumps(d)(序列化字典)
+>>> d1
+   b'\x80\x03}q\x00(X\x04\x00\x00\x00nameq\x01X\x04\x00\x00\x00Jickq\x02X\x03\x00\x00\x00ageq\x03K\x12X\x05\x00\x00\x00scoreq\x04KXu.'
+>>>pickle.loads(d1)(反序列化字典,d与d1是两个变量)
+   {'name': 'Jick', 'age': 18, 'score': 88}
+对文件操作的序列化与反序列化
+>>> f = open('dump.txt', 'wb')(dump.txt的内容是个二进制)
+>>> pickle.dump(d, f)
+>>> f.close()
+文件反序列化
+>>> f = open('dump.txt', 'rb')
+>>> d2 = pickle.load(f)
+>>> f.close()
+>>> d2
+   {'name': 'Jick', 'age': 18, 'score': 88}
+pickle保存一些不重要数据，不能成功反序列化也没有关系
+12.3 对象序列化标准格式,JSON格式
+>>> import json
+>>> d = dict(name='Jick', age=18, score=88)
+>>> json.dumps(d)
+'{"name": "Jick", "age": 18, "score": 88}'
+(把一个字典转换成一个json对象)
+json对象反序列化成python对象
+>>> json_str = '{"name": "Jick", "age": 18, "score": 88}'
+>>> json.loads(json_str)
+{'name': 'Jick', 'age': 18, 'score': 88}
+dumps()方法返回一个str,内容就是标准的JSON.dump()方法可以直接把JSON写入一个file-like object
+把JSON反序列化python对象，用loads()或对应的load()方法，，前者把JSON的字符串反序列化，后者从file-like object中读取字符串并反序列化
+12.4 json进阶类序列化与反序列化
+>>> import json
+>>> class Student(object):
+
+	def __init__(self, name, age, score):
+
+		self.name = name
+		self.age = age
+		self.score = score
+>>> s = Student('Jick', 20, 88)
+错误表达>>>print(json.dumps(s))会输出一个类型错误
+dumps()有个default参数可使用
+解决办法一：
+>>> def student2dict(std):
+
+	return {
+
+		'name': std.name,
+
+		'age': std.age,
+
+		'score': std.score
+
+	}
+>>> print(json.dumps(s, default=student2dict))
+{"name": "Jick", "age": 20, "score": 88}
+解决办法二：
+默认对象类
+>>> print(json.dumps(s, default=lambda obj: obj.__dict__))
+{"name": "Jick", "age": 20, "score": 88}
+
+json对象反序列化类
+json.loads可选参数object_hook
+>>> json_str = '{"name": "Jick", "age": 20, "score": 88}'
+>>>  def dict2student(d):
+
+	return Student(d['name'], d['age'], d['score'])
+>>> print(json.loads(json_str, object_hook=dict2student))
+<__main__.Student object at 0x00000281E3165D68>
+
+13.多进程
+13.1 fork()系统调用
+	fork()只支持Unix/linux、mac系统调用,不支持windows，该函数调用一次，返回两次，子进程永远返回0，而父进程返回子进程的ID，通过getppid()获取到父进程的ID
+	
+13.2 multiprocessing模块是跨平台版本的多进程模块
+	multiprocessing模块提供了一个process类来代表一个进程对象
+	p = Process(target=fun_proc, args=('test',))
+	p.start()
+	p.join()
+	
+13.3 Pool 使用进程池方式批量创建子进程
+	p = Pool(4)
+	for i in range(5):
+	    p.apply_async(fun_time_task, args=(i,))
+	p.close()
+	p.join()
+
+  对Pool对象调用join()方法会等待所有子进程执行完毕，调用join()之前必须调用close() 调用close()之后就不能继续添加新的process。	
+13.4 subprocess子进程
+  subprocess模块很方便的启动一个子进程并控制其输入和输出
+  subprocess.call(['nslookup', 'www.python.org'])
+  子进程需要输入时可利用communicate()方法实现输入
+      p = subprocess.Popen(['nslookup'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      output, err = p.communicate(b'set q=mx\npython.org\nexit\n')
+      print(output.decode('utf-8'))
+      print('Exit code:', p.returncode)
+      
+13.5 进程间通信
+	进程间通信是通过Queue、Pipes等实现
+	    q = Queue()
+	    pw = Process(target=fun_write, args=(q,))
+	    pr = Process(target=fun_read, args=(q,))
+			pw.start()
+			pr.start()
+			pw.join()
+			pr.terminate() #pr进程里是死循环，无法等待其结束，只能强行终止
+14. 多线程
+	多线程编程，模型复杂，容易发生冲突，必须用锁加以隔离，同时，又要小心死锁的发生。
+14.1 ThreadLocal
+	ThreadLocal最常用的地方就是为每个线程绑定一个数据库连接，HTTP请求，用户身份信息等，这样一个线程的所有调用到的处理函数都可以非常方便地访问这引起资源。
+	local_var = threading.local()
+14.2 分布式进程
+	python的分布式进程接口简单，封装良好，适合需要把繁重任务分布到多台机器的环境下。
+	注意：Queue的作用是用来传递任务和接收结果，每个任务的描述数据量要尽量小。比如发送一个日志文件的任务，就不要发送几百兆的日志文件本身，而是发送日志文件存放的完整路径，
+	由Worker进程再去共享磁盘上读取文件。
+	master：
+	import queue
+	from multiprocessing.managers import BaseManager
+	
+	task_queue = queue.Queue()
+	result_queue= queue.Queue()
+	
+	class QueueManager(BaseManager):
+	    pass
+	
+	QueueManager.register('get_task_queue', callable=lambda: task_queue)
+	QueueManager.register('get_result_queue', callable=lambda: result_queue)
+	
+	manager = QueueManager(address=('', 5000), authkey=b'abc')
+	manager.start()
+	...
+	manager.shutdown()
+	
+	worker:
+	import queue
+	from multiprocessing.managers import BaseManager
+	
+	class QueueManager(BaseManager):
+	    pass
+	
+	QueueManager.register('get_task_queue')
+	QueueManager.register('get_result_queue')
+	
+	server_addr = '127.0.0.1'
+	m = QueueManager(address=(server_addr, 5000), authkey=b'abc')
+	m.connect()
+	
+	task = m.get_task_queue()
+	result = m.get_result_queue()
+	...
+
+15. 正则表达式
+	15.1 正则解释
+	\d 可以匹配一个数字
+	\w 可以匹配一个字母或数字
+	.  可以匹配任意字符
+	\s 可以匹配空格(包括tab空格)
+	匹配变长的字符：
+	* 表示任意个字符（包括0个）
+	+ 表示至少一个字符
+	? 表示0个或1个字符
+	{n} 表示n个字符
+	{n,m} 表示n至m个字符
+	[] 表示范围   例如：[0-9a-zA-z\_]可以匹配一个数字、字母或者下划线
+	() 表示是分组
+	|  表示是或   例如：0[0-9]|1[0-9]|2[0-3]|[0-9]
+	15.2 re模块
+	import re
+	re.match(r'^\d{3}-\d{3,8}$', '010-12345')
+	注：使用python的r前缀，不用考虑转义问题
+	15.3 切分字符串
+	re.split(r'[\s,-]+','a,b c,,d,-d, bb  -d')
+	无论多少个空格、逗号，横线都可以正常分割。
+	15.4 分组
+	>>> m = re.match(r'^(\d{3})-(\d{3,8})$, '010-12345')
+	>>> m.group(0)
+	'010-12345'
+	>>> m.group(1)
+	'010'
+	>>> m.group(2)
+	'12345'
+	
+	groups()
+	>>> t = '19:05:30'
+>>> m = re.match(r'^(0[0-9]|1[0-9]|2[0-3]|[0-9])\:(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9]|[0-9])\:(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9]|[0-9])$', t)
+>>> m.groups()
+('19', '05', '30')
+ 15.5 预编译正则表达式
+ >>> import re
+ >>> re_tel = re.compile(r'^(\d{3})-(\d{3,8})$')
+ >>> re_tel.match('010-12345').groups()
+ ('010', '12345')
+16. datetime模块
+16.1 获取当前日期和时间
+>>> from datetime import datetime
+>>> now = datetime.now()
+>>> now
+datetime.datetime(2018, 3, 5, 14, 7, 21, 871200)
+>>> print(type(now))
+<class 'datetime.datetime'>
+16.2 获取指定日期和时间
+>>> dt = datetime(2018, 3, 5, 14, 9)
+>>> dt
+datetime.datetime(2018, 3, 5, 14, 9)
+>>> print(dt)
+2018-03-05 14:09:00
+16.3 datetime、timestamp相互转换
+timestamp与时区毫无关系，是一个浮点数，小数位表示毫秒数
+datetime To timestamp
+
+>>> ts = datetime(2018, 3, 5, 14, 9)
+>>> ts.timestamp()
+1520230140.0
+
+timestamp To datetime
+
+>>> ts = 1520230140.0
+>>> dt = datetime.fromtimestamp(ts)
+>>> print(dt)
+2018-03-05 14:09:00
+
+timestamp直接转换到UTC标准时区时间
+
+>>> print(datetime.utcfromtimestamp(ts))
+2018-03-05 06:09:00
+
+16.4 str、datetime相互转换
+str To datetime
+
+>>> from datetime import datetime
+>>> cday = datetime.strptime('2018-3-5 14:27:00', '%Y-%m-%d %H:%M:%S')
+>>> print(cday,type(cday))
+2018-03-05 14:27:00 <class 'datetime.datetime'>
+
+datetime To str
+
+>>> now = datetime.now()
+>>> print(datetime.strftime(now, '%a, %y %b %d %p %I:%M'))
+Mon, 18 Mar 05 PM 02:32
+%a 周的简称
+%y 年的简称
+%b 英文月的简称
+%p 上午与下午
+%I 12小时制
+
+16.5 datetime加减
+	需要导入timedelta通过+或-直接运算得到
+>>> from datetime import datetime, timedelta
+>>> now = datetime.now()
+>>> print(now)
+2018-03-05 14:44:16.371859
+>>> print(now + timedelta(hours=10))
+2018-03-06 00:44:16.371859
+>>> print(now - timedelta(days=1))
+2018-03-04 14:44:16.371859
+>>> print(now + timedelta(days=1, hours=8, seconds=10))
+2018-03-06 22:44:26.371859
+
+16.6 时区转换
+本地时间转换UTC时间
+
+>>> from datetime import datetime, timezone, timedelta
+>>> tz_utc_8 = timezone(timedelta(hours=8)) #创建时区UTC +8:00
+>>> now = datetime.now()
+>>> now
+datetime.datetime(2018, 3, 5, 14, 51, 44, 925543)
+>>> dt = now.replace(tzinfo=tz_utc_8) #强制设置为UTC +8:00
+>>> dt
+datetime.datetime(2018, 3, 5, 14, 51, 44, 925543, tzinfo=datetime.timezone(datetime.timedelta(0, 28800)))
+注：如果系统时区恰好是UTC+8:00,那么上述代码就是正确的，否则，不能强制设置为UTC+8:00时区
+
+通过utcnow()得到当前的UTC时间，再转换成任意时区的时间
+>>> #拿到UTC时间，并强制设置时区为UTC+0:00
+...utc_dt = datetime.utcnow().replace(tzinfo=timezone.utc)
+>>> print(utc_dt)
+2018-03-05 06:57:52.774551+00:00
+>>> # astimezone()将转换时区为北京时间
+... bj_dt = utc_dt.astimezone(timezone(timedelta(hours=8)))
+>>> bj_dt
+datetime.datetime(2018, 3, 5, 14, 57, 52, 774551, tzinfo=datetime.timezone(datetime.timedelta(0, 28800)))
+>>> # astimezone()将转换时区为东京时间
+... tokyo_dt = utc_dt.astimezone(timezone(timedelta(hours=9)))
+>>> tokyo_dt
+datetime.datetime(2018, 3, 5, 15, 57, 52, 774551, tzinfo=datetime.timezone(datetime.timedelta(0, 32400)))
+>>> # astimezone()将bj_dt转换时区为东京时间
+... tokyo_dt1 = bj_dt.astimezone(timezone(timedelta(hours=9)))
+>>> tokyo_dt1
+datetime.datetime(2018, 3, 5, 15, 57, 52, 774551, tzinfo=datetime.timezone(datetime.timedelta(0, 32400)))
+
+注：不是必须从UTC+0:00时区转换到其他时区，任何带时区的datetime可以正确转换，上述bj_dt到tokyo_dt的转换
+
+17 collection是python内建一个集合模块，提供很多有用的集合类
+17.1 namedtuple：用tuple表示坐标
+from collections import namedtuple
+#namedtuple('名称', [属性list])
+Point = namedtuple('Point', ['x', 'y'])
+p = Point(1, 2)
+p.x
+p.y
+#Point对象是tuple的一种子类
+#也可以表示一个圆
+Circle = namedtupe('Circle', ['x', 'y', 'r'])
+
+17.2 deque
+#使用list插入和删除元素很慢，因为list是线性存储，插入和删除效率很低
+#deque是为了高效实现插入和删除的双向列表，适合用于队列和栈
+from collections import deque
+q = deque(['a', 'b', 'c'])
+q.append('x')
+q.appendleft('y')
+q
+deque(['y', 'a', 'b', 'c', 'x'])
+q.pop()
+q.popleft()
+q
+deque(['a', 'b', 'c'])
+deque除了实现list的所有特性外，还支持appendlef()和popleft()，这样就可以非常高效地往头部添加和删除元素
+17.3 defaultdict
+#使用时，如果引用的key不存在，应当会抛出KeyError。如果希望key不存在时，返回一个默认值，就可以用defaultdict
+from collections import defaultdict
+dd = defaultdict(lambda: 'N/A')
+dd['key1'] = 'abc'
+dd['key2']
+'N/A'
+#除了在key不存在时返回默认值，defaultdict的其他行为跟dict是完全一样的
+17.4 OrderedDict
+#使用dict时，Key是无序的，如果要保持Key的顺序，就要用到OrderedDict
+from collections import OrderedDict
+d = dict([('a', 1), ('c', 2), ('b', 3)])
+#此时d的key是无序的
+od = OrderedDict([('a', 1), ('b', 2), ('c', 3)])
+#此时od的key是有序的，按照插入的顺序排列，不是key本身排序。
+#OrderedDict可以实现一个(FIFO)先进先出的dict，当容量超出限制时，会删除最早添加的key
+
+17.5 Counter是一个简单的计数器
+#可以统计字符出现的个数
+from collections import Counter
+c = Counter()
+for ch in '中华人民共和国公民就是中国人':
+    c[ch] += 1
+
+>>> print(c)
+Counter({'中': 2, '人': 2, '民': 2, '国': 2, '华': 1, '共': 1, '和': 1, '公': 1, '就': 1, '是': 1})
+>>> print(dict(c))
+{'中': 2, '华': 1, '人': 2, '民': 2, '共': 1, '和': 1, '国': 2, '公': 1, '就': 1, '是': 1}
+#取最多的前三项
+>>> c.most_common(3)
+[('中', 2), ('人', 2), ('民', 2)]
+
+18. base64模块
+	Base64是一种用64个字符来表示任意二进制的数据方法。
+	Base64编码的长度永远是4的倍数。
+	常用于在URL、Cookie、网页中传输少量二进制数据。
+	常用方法base64.b64encode(b'abcd')和base64.b64decode(b'YWJjZA==')
+
+19. struct模块
+	在python中没有专门处理字节的数据类型，但由于b'str'可以表示字节，所以字节数组 = 二进制str
+	struct模块可以解决bytes和其他二进制数据类型的转换
+  struct的pack函数把任意数据类型变成bytes：
+  >>> import struct
+  >>> struct.pack('>I', 1024)
+  b'\x00\x00\x04\x00'
+  pack的第一个参数是处理指令
+  '>I'的意思：
+  >表示字节顺序是big-endian，也就是网络序，I表示4个字节无符号整数
+  后面的参数个数要和处理指令一致
+  unpack函数把bytes变成相应的数据类型
+  >>> struct.unpack('<IH', b'\x00\x04\x00\x00\x80\x80')
+	(1024, 32896)
+	I:4字节无符号整数
+	H:2字节无符号整数
+	struct模块定义的数据类型参考python官方文档
+	https://docs.python.org/3/library/struct.html#format-characters
+	例子：
+	windows的位图文件(.bmp)是一种非常简单的文件格式，用struct分析一下。
+	读入前30个字节来分析：
+	>>> s = b'\x42\x4d\x38\x8c\x0a\x00\x00\x00\x00\x00\x36\x00\x00\x00\x28\x00\x00\x00\x80\x02\x00\x00\x68\x01\x00\x00\x01\x00\x18\x00'
+	BMP格式采用小端方式存储数据，文件头的结构按顺序如下：
+	两个字节：'BM' 表示windows位图，'BA'表示OS/2位图；
+	一个4字节整数：表示位图大小
+	一个4字节整数：保留位，始终为0
+	一个4字节整数：实际图像的偏移量
+	一个4字节整数：Header的字节数
+	一个4字节整数：图像宽度
+	一个4字节整数：图像高度
+	一个2字节整数：始终为1
+	一个2字节整数：颜色数
+  组合起来用unpack读取
+  >>> struct.unpack('<ccIIIIIIHH', s)
+ (b'B', b'M', 691256, 0, 54, 40, 640, 360, 1, 24)
+ 结果显示，b'B'、b'M'说明是Windows位图，位图大小为640x360，颜色数为24。
+20. hashlib模块学习
+mysql-md5：
+123.nzj    f9abad55a87db238315c5cdb8808619a
+1234abcD   bfbe04c28f819d2fa626d886a2bb1597     27
+1234abcd   ef73781effc5774100f87fe2f437a435     155
+abcd1234   e19d5cd5af0378da05f63f891c7467af     358
+1234abcD@  20e50b7b089e9c7d5a393096f405c24d
+123.com    cbff36039c3d0212b3e34c23dcde1456
+sg186186   edf9cd0bac6a8939b3679e1a49a4573b
+           5690dddfa28ae085d23518a035707282     30
+           ef209c9343ca8c715265781876657b18     85
+Python的hashlib提供了常见的摘要算法，如MD5,SHA1等等。
+>>> import hashlib
+>>> md5 = hashlib.md5('how to use md5 in python hashlib?'.encode('utf-8'))
+>>> print(md5.hexdigest())
+d26a53750bc40b38b65a520292f69306
+
+md5摘要算法更新
+>>> md5 = hashlib.md5()
+>>> md5.update('how to use md5 in python hashlib?'.encode('utf-8'))
+>>> print(md5.hexdigest())
+d26a53750bc40b38b65a520292f69306
+
+>>> sha1 = hashlib.sha1('how to use md5 in python hashlib?'.encode('utf-8'))
+>>> print(sha1.hexdigest())
+b752d34ce353e2916e943dc92501021c8f6bca8c
+
+sha1摘要算法更新
+>>> sha1 = hashlib.sha1()
+>>> sha1.update('how to use md5 in python hashlib?'.encode('utf-8'))
+>>> print(sha1.hexdigest())
+b752d34ce353e2916e943dc92501021c8f6bca8c
+
+21.hmac模块学习
+Hmac算法：Keyed-Hashing for Message Authentication,它通过一个标准算法，在计算哈希的过程中，把吸混入计算过程中。
+python自带的hmac模块实现了标准的Hmac算法。
+实例应用：
+通过哈希算法，我们可以验证一段数据是否有效，方法就是对比该数据的哈希值。
+像判断用户口令是否正确，我们用保存在数据库中的password_md5 对比计算md5(password)的结果，如果一致，用户输入的口令就是
+正确的。
+>>> import hmac
+>>> message = b'Hello, world!'
+>>> key = b'secret'
+>>> h = hmac.new(key, message, digestmod='MD5')
+>>> print(h.hexdigest())
+fa4ee7d173f2d97ee79022d1a7355bcf
+22.内建模块itertools模块学习
+	22.1 count()自然数序列的"无限"迭代器
+	>>> import itertools
+>>> natuals = itertools.count(2) 注意：count(1,2):‘1’是指起始点,'2'是步长
+>>> for n in natuals:
+	print(n)
+2
+3
+4
+5
+6
+7
+8
+9
+10
+...
+	22.2 takewhile()函数根据条件判断截取出一个有限的序列。
+>>> import itertools
+>>> natuals = itertools.count(1)
+>>> ns = itertools.takewhile(lambda x: x<=10, natuals)
+>>> list(ns)
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+>>> 
+	22.3 cycle()把传入的一个序列无限重复下去。
+>>> import itertools
+>>> cs = itertools.cycle('EDEF') 注：字符串也是序列的一种
+>>> for c in cs:
+	print(c)
+
+	
+E
+D
+E
+F
+E
+D
+E
+F
+E
+D
+...
+	22.4 repeat()把一个元素无限重复下去，第二个参数可以限定重复次数
+>>> import itertools
+>>> ns = itertools.repeat((1, 3, 3), 3)
+>>> for r in ns:
+	print(r)
+
+(1, 3, 3)
+(1, 3, 3)
+(1, 3, 3)
+>>> ns = itertools.repeat({'a':1, 'b':3}, 3)
+>>> ns
+repeat({'a': 1, 'b': 3}, 3)
+>>> for r in ns:
+	print(r)
+	
+{'a': 1, 'b': 3}
+{'a': 1, 'b': 3}
+{'a': 1, 'b': 3}
+>>> ns = itertools.repeat('ABC', 3)
+>>> for r in ns:
+	print(r)
+	
+ABC
+ABC
+ABC
+>>>
+注：无限序列只有在for迭代时才会无限地迭代下去，只是创建一个迭代对象，是不会事先把
+无限个元素生成出来，也不可能在内存中创建无限多个元素。
+22.5 chain()可以把一组迭代对象串联起来，形成一个更大的迭代器
+>>> import itertools
+>>> for c in itertools.chain('ABC', 'EDF', 'MNK'):
+	print(c)	
+A
+B
+C
+E
+D
+F
+M
+N
+K
+注：迭代对象可以是字符串、元组、列表等，字典只串联key。
+	22.6 groupby()把迭代器中相邻的重复元素挑出来放在一起。
+元素！！
+>>> import itertools
+>>> for key, group in itertools.groupby('AAABBBCCAA'):
+	print(key, list(group))
+A ['A', 'A', 'A']
+B ['B', 'B', 'B']
+C ['C', 'C']
+A ['A', 'A']
+挑选规则是通过函数完成的，只要作用于函数的两个元素返回的值相等，这两个元素就被认
+为是在一组的，而函数返回值作为组的key。
+>>> for key, group in itertools.groupby('AaaBBbcCAAa', lambda c: c.upper()):
+	print(key, list(group))
+		
+A ['A', 'a', 'a']
+B ['B', 'B', 'b']
+C ['c', 'C']
+A ['A', 'A', 'a']
+
+23. contextlib模块学习
+	23.1 @contextmanager
+	@contextmanagerp 这个decorator接受一个generator，用yield语句把with... as var把变量
+输出出去，这样 with语句就可以正常工作。
+>>> from contextlib import contextmanager
+>>> class Query(object):
+	def __init__(self, name):
+		self.name = name
+	def query(self):
+		print('Query info about %s...' % self.name)
+>>> @contextmanager
+def create_query(name):
+	print('Begin')
+	q = Query(name)
+	yield q
+	print('End')
+
+>>> with create_query('bob') as q:
+	q.query()
+
+Begin
+Query info about bob...
+End
+>>> 
+*****************************************************************
+>>> from contextlib import contextmanager
+>>> @contextmanager
+def tag(name):
+	print('<%s>' % name)
+	yield
+	print('</%s>' % name)
+>>> with tag('h1'):
+	print('Hello')
+	print('world')
+<h1>
+Hello
+world
+</h1>
+>>> with tag('body'):
+	with tag('h1'):
+		print('hello')
+		print('world')
+<body>
+<h1>
+hello
+world
+</h1>
+</body>
+>>> 
+ 23.2 @closing：作用就是把任意对象变为上下文对象，并支持with语句
+
+	一个对象没有实现上下文，就不能把它用于with语句。但用closing()把该对象变为上下
+文对象。
+例如：用with语句使用urlopen()
+>>> from contextlib import closing
+>>> from urllib.request import urlopen
+>>> with closing(urlopen('https://www.baidu.com')) as page:
+	for line in page:
+		print(line.decode('utf-8'))
+
+closing也是一个经过@contextmanager装饰的generator，这个生成器编写起来很简单：
+from contextlib import contextmanager
+ @contextmanager
+def closing(thing):
+	try:
+		yield thing
+	finally:
+		thing.close()
+24. urllib模块学习
+	24.1 Get
+	urllib的request模块可以非常方便地抓取URL内容，也就是发送一个GET请求到指定的页面，然后返回HTTP的响应：
+>>> from urllib import request
+>>> with request.urlopen('https://api.douban.com/v2/book/2129650') as f:
+	data = f.read()
+	print('Status:', f.status, f.reason)
+	for k, v in f.getheaders():
+		print('%s:%s' % (k, v))
+	print('Data:', data.decode('utf-8'))	
+可以看到HTTP响应的头和JSON数据
+
+要想模拟浏览器发送GET请求，就需要使用Request对象，通过往Request对象添加HTTP头，就可以把请求伪装成浏览器。
+>>> from urllib import request
+>>> req = urllib.Request('http://www.douban.com')
+>>> req.add_header('User-Agent','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.146 Safari/537.36')
+>>> with request.urlopen(req) as f:
+	print('Status:', f.status, f.reason)
+	for k, v in f.getheaders():
+		print('%s:%s' % (k, v))
+	print('Data:', f.read().decode('utf-8'))
+
+	24.2 Post
+	如果要以Post发送一个请求，只需要把参数data以bytes形式传入。
+	模拟一个微博登录，先读取登录的邮箱和口令，然后按照weibo.cn的登录页的格式以username=xxx&password=xxx的编码传入：
+>>> from urllib import request, parse
+>>> email = input('Email:')
+Email:青春一笑1981
+>>> passwd = input('Password:')
+Password:3971215
+>>> login_data = parse.urlencode([])
+>>> login_data = parse.urlencode([
+	
+('username', email),
+	('password', passwd),
+	('entry', 'mweibo'),
+	
+('client_id', ''),
+	('savestate', '1'),
+	('ec', ''),
+	('pagerefer', 'https://passport.weibo.cn/signin/welcome?entry=mweibo&r=http%3A%2F%2Fm.weibo.cn%2F')
+	])
+>>> req = request.Request('https://passport.weibo.cn/sso/login')
+>>> req.add_header('Origin', 'https://passport.weibo.cn')
+>>> req.add_header('User-Agent','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.146 Safari/537.36')
+>>> req.add_header('Referer','https://passport.weibo.cn/signin/login?entry=mweibo&res=wel&wm=3349&r=http%3A%2F%2Fm.weibo.cn%2F')
+>>> with request.urlopen(req, data=login_data.encode('utf-8')) as f:
+	print('Status:', f.status, f.reason)
+	for k, v in f.getheaders():
+		print('%s:%s' % (k, v))
+	print('Data:', f.read().decode('utf-8'))
+	
+	24.3 Handler
+	如果需要代理去上网的，我们可以利用ProxyHandler来处理
+>>> from urllib import request
+>>> proxy_handler = request.ProxyHandler({'http': 'http://www.example.com:3128'})
+>>> proxy_auth_handler = request.ProxyBasicAuthHandler()
+>>> proxy_auth_handler.add_password('realm', 'host', 'username', 'password')
+>>> opener = request.build_opener(proxy_handler, proxy_auth_handler)
+
+>>> with opener.open('http://www.example.com/login.html') as f:
+	
+pass
+
+
+
+
+
