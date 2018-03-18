@@ -62,7 +62,7 @@ def cal_bonus(profit):
         if profit > arr[idx]:
             r += (profit - arr[idx]) * rat[idx]
             print(idx, ':', profit, '{} = {} * {}'.format(r, (profit - arr[idx]),
-                  rat[idx]))
+                                                          rat[idx]))
 
             profit = arr[idx]
 
@@ -92,3 +92,24 @@ for i in range(1, 85):
             n = (i - j) / 2
             x = n * n - 100
             print('该整数为：', x)
+
+print('\n著名的斐波拉契数列应用*****************************')
+'''
+04.古典问题：有一对兔子，从出生后第3个月起每个月都生一对兔子，小兔子长到第三个月后
+每个月又生一对兔子，假如兔子都不死，问每个月的兔子总数为多少？（单位：对）
+程序分析：兔子的规律为数列：1, 1, 2, 3, 5, 8, 13, 21, 34, 55.....
+这个题就是著名的斐波拉契数列(Fibonacci),除了第一个和第二个数外，任意一个数都可由前
+两个数相加得到。
+那么我们求第十个月兔子总数是多少对。
+'''
+
+
+def get_total_month(month):
+    n, a, b = 0, 0, 1
+    while n < month:
+        print('第{}个月，兔子总数为：{}对'.format(n + 1, b))
+        a, b = b, a + b
+        n += 1
+    return ''
+
+get_total_month(10)
