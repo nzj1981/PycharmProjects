@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="utf-8" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+<h1 style="font-style: italic">{{ welcome_str }}</h1>
+<p>
+<ul>
+    {% for i in page_list %}
+    <li>
+        <a href="/page/{{ i }}"> {{ i }}</a>
+    </li>
+    {% endfor %}
+</ul>
+</p>
+</body>
+</html>
