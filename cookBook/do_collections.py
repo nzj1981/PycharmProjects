@@ -12,7 +12,7 @@
 
 
 '''
-保留最后N个元素
+1.保留最后N个元素
 利用collections.deque保留有限历史记录
 '''
 
@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
 
 '''
-找出一个序列中出现次数最多的元素
+2.找出一个序列中出现次数最多的元素
 1.统计单词出现频率的collections.Counter方法
 2.输出出现频率最高前3的most_common方法
 3.手动增加统计次数update
@@ -79,3 +79,39 @@ with open('deque_text.txt') as f:
     word_cn = Counter(f)
     print('统计出文件deque_text.txt中所有单词出现次数：%s' % word_cn)
     print('统计出文件deque_text.txt中单词出现次数前3的：%s' % word_cn.most_common(3))
+
+
+'''
+3.命名元组nametuple
+3.1._replace
+'''
+from collections import namedtuple
+
+Subscriber = namedtuple('Subscriber', ['addr', 'joined'])
+sub = Subscriber('jonesy@example.com', '2012-09-10')
+print('sub.length %s' % len(sub))
+addr, joined = sub
+print('addr=%s, joined=%s' % (addr, joined))
+print('addr replace other "addr=%s"' % sub._replace(addr='tomes@example.com').addr)
+print('dict to named tuple==============')
+Stock =namedtuple('Stock', ['name', 'shares', 'price', 'date', 'time'])
+# Create a prototype instance
+stock_prototype = Stock('', 0, 0.0, None, None)
+# Function to convert a dictionary to a Stock
+def dict_to_stock(s):
+    return stock_prototype._replace(**s)
+
+
+a = {'name': 'ACME', 'shares': 100, 'price': 123.45}
+d = dict_to_stock(a)
+print('dict to stock: ', d)
+
+
+'''
+4.合并字典
+'''
+from collections import ChainMap
+a = {'x': 1, 'z': 3}
+b = {'y': 2, 'z': 4}
+c = ChainMap(a, b)
+print('c = (a, b) ChinaMap:', c['x'], c['z'])
