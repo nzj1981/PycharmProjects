@@ -67,4 +67,3 @@ for t in triangles():
     if n == 10:
         break
 a=[1]
-a[]
