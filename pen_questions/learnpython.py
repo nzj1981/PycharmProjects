@@ -38,7 +38,7 @@ def get_sum(a, n):
     return reduce(lambda x, y: x + y, lst)
 
 
-print(get_sum(2, 3))
+print(get_sum(3, 5))
 
 print('奖金发放*****************************************')
 
